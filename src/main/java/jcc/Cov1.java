@@ -1,9 +1,12 @@
 package jcc;
 
 import org.apache.tools.ant.DirectoryScanner;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
@@ -33,50 +36,32 @@ public class Cov1 {
         String p = project + "\\" + classes[0];
         JarFile jarFile = new JarFile(p);
         Enumeration<JarEntry> e = jarFile.entries();
-
         System.out.println(p);
-        URL[] urls = { new URL("jar:file:" + p + "!/")};
-        System.out.println(urls[0].getPath());
+
+        URL[] urls = {new URL("file:" + p)};
         URLClassLoader cl = new URLClassLoader(urls);
+
         while (e.hasMoreElements()) {
-           JarEntry je = e.nextElement();
-           String name = je.getName();
-           if (name.endsWith(".class") && name.contains("tests")) {
-               System.out.println(name);
-               String className = je.getName().substring(0, je.getName().length() - 6);
-               className = className.replace('/', '.');
-               System.out.println(className);
-               Class<?> c = cl.loadClass(className);
-               Arrays.stream(c.getMethods()).forEach(System.out::println);
-           }
+            JarEntry je = e.nextElement();
+            String name = je.getName();
+            //System.out.println(name);
+            if (name.endsWith(".class") && name.contains("tests/")) {
+                System.out.println(name);
+                //System.out.println(name);
+                String className = je.getName().substring(0, je.getName().length() - 6);
+                className = className.replace('/', '.');
+                //System.out.println(className);
+                Class<?> c = cl.loadClass(className);
+                System.out.println("\nClass methods:\n");
+                for (Method m : c.getMethods()) {
+                    for (Annotation a : m.getAnnotations()) {
+                        if (a.annotationType().equals(Test.class)) {
+                            System.out.println(m.getName());
+                        }
+                    }
+                }
+            }
         }
-
-
-        /*URL url = new URL("file:D:/UltimateIDEA/code-cov/target/classes/jcc");
-        URL[] urls = new URL[]{url};
-        System.out.println(
-                "Protocol: " + url.getProtocol());
-        System.out.println(
-                "Filename: " + url.getFile());
-        System.out.println(
-                "Reference: " + url.getRef());
-        System.out.println(
-                "External Form: " + url.toExternalForm());
-        //System.out.println(project.toString());
-        URLClassLoader ucl = new URLClassLoader(urls);
-        Class<?> cl = ucl.loadClass("Cov1");
-        System.out.println(cl);*/
-
-        /*File f = new File(project, classes[0]);
-        String aPath = f.getAbsolutePath();
-        System.out.println(aPath);
-        System.out.println(f.getName());
-        String pathToPackageBase = aPath.substring(0, aPath.length() - f.getName().length());
-        System.out.println("pathToPackageBase = " + pathToPackageBase);
-        Class<?> clss = new URLClassLoader(
-                new URL[]{new File(pathToPackageBase).toURI().toURL()}
-        ).loadClass("Adder");
-        System.out.println(clss.toString());*/
     }
 
 }
