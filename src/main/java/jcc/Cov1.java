@@ -35,9 +35,10 @@ public class Cov1 {
 
         URL[] urls = new URL[scanned.length];
         List<JarFile> jars = new LinkedList<>();
+        String projectPath = project.getAbsolutePath();
 
         for (int i = 0; i < scanned.length; i++) {
-            String p = project.getAbsolutePath() + "\\" + scanned[i];
+            String p = projectPath + "\\" + scanned[i];
             System.out.println(p);
             urls[i] = new URL("file:" + p);
             jars.add(new JarFile(p));
