@@ -1,6 +1,8 @@
 package jcc;
 
 import org.apache.tools.ant.DirectoryScanner;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,16 +55,17 @@ public class Cov1 {
                     String className = name.substring(0, je.getName().length() - 6).replace('/', '.');
                     System.out.println(className);
                     Class<?> c = cl.loadClass(className);
-                    Arrays.stream(c.getMethods()).forEach(System.out::println);
-                    /*for (Method m : c.getMethods()) {
+                    /*Arrays.stream(c.getMethods()).forEach(System.out::println);
+                    for (Method m : c.getMethods()) {
                         for (Annotation a : m.getAnnotations()) {
                             if (a.annotationType().equals(Test.class)) {
                                 System.out.println(m.getName());
                             }
                         }
-                    }
+                    }*/
+                    System.out.println("\nRunning test...\n");
                     Result result = JUnitCore.runClasses(c);
-                    result.getFailures().forEach(System.out::println);*/
+                    result.getFailures().forEach(System.out::println);
                 }
             }
         }
