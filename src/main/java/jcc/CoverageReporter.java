@@ -135,6 +135,7 @@ public class CoverageReporter {
             printCounter("methods", cc.getMethodCounter());
             printCounter("complexity", cc.getComplexityCounter());
         }
+
     }
 
     private String getFullyQualifiedName(String name) {
