@@ -1,10 +1,7 @@
 package jcc;
 
 import org.apache.tools.ant.DirectoryScanner;
-import org.jacoco.core.analysis.Analyzer;
-import org.jacoco.core.analysis.CoverageBuilder;
-import org.jacoco.core.analysis.IClassCoverage;
-import org.jacoco.core.analysis.ICounter;
+import org.jacoco.core.analysis.*;
 import org.jacoco.core.data.ExecutionDataStore;
 import org.jacoco.core.data.SessionInfoStore;
 import org.jacoco.core.instr.Instrumenter;
@@ -49,7 +46,7 @@ public class CoverageReporter {
         if (!projectDir.exists()) throw new IllegalArgumentException("Project doesn't exist");
 
         DirectoryScanner scanner = new DirectoryScanner();
-        scanner.setIncludes(new String[]{"**\\*.jar"});
+        scanner.setIncludes(new String[]{"**/*.jar"}); // for any OS
         scanner.setBasedir(projectDir);
         scanner.scan();
         String[] scannedJarPaths = scanner.getIncludedFiles();
@@ -58,7 +55,8 @@ public class CoverageReporter {
         URL[] scannedJarURLs = new URL[length];
         List<JarFile> scannedJarFiles = new ArrayList<>(length);
         for (int i = 0; i < scannedJarPaths.length; i++) {
-            String absolutePath = projectDirPath + "\\" + scannedJarPaths[i];
+            String absolutePath = projectDirPath + "/" + scannedJarPaths[i];
+            System.out.println(absolutePath);
             scannedJarURLs[i] = new URL("file:" + absolutePath);
             scannedJarFiles.add(new JarFile(absolutePath));
         }
@@ -127,13 +125,26 @@ public class CoverageReporter {
         }
 
         for (final IClassCoverage cc : coverageBuilder.getClasses()) {
-            System.out.printf("%nCoverage of class %s:%n", cc.getName());
+            String className = cc.getName();
+            System.out.printf("%nCoverage of class %s:%n", className);
 
             printCounter("instructions", cc.getInstructionCounter());
             printCounter("branches", cc.getBranchCounter());
             printCounter("lines", cc.getLineCounter());
             printCounter("methods", cc.getMethodCounter());
             printCounter("complexity", cc.getComplexityCounter());
+
+            System.out.printf("%nCoverage of %s methods:%n", className);
+
+            for (final IMethodCoverage mc : cc.getMethods()) {
+                System.out.printf("%nCoverage of method %s:%n", mc.getName());
+
+                printCounter("instructions", mc.getInstructionCounter());
+                printCounter("branches", mc.getBranchCounter());
+                printCounter("lines", mc.getLineCounter());
+                printCounter("methods", mc.getMethodCounter());
+                printCounter("complexity", mc.getComplexityCounter());
+            }
         }
 
     }
