@@ -36,9 +36,13 @@ public class CoverageReporter {
 
     private final List<JarFile> jarFiles;
 
+    private final String classesPackage;
+
+    private final String testsPackage;
+
     public CoverageReporter(String[] args) throws IOException {
 
-        if (args == null || args.length < 1) throw new IllegalArgumentException("Incorrect data entered");
+        if (args == null || args.length < 3) throw new IllegalArgumentException("Incorrect data entered");
 
         String projectDirPath = args[0];
         File projectDir = new File(projectDirPath);
@@ -64,6 +68,8 @@ public class CoverageReporter {
         this.baseClassLoader = new URLClassLoader(scannedJarURLs);
         this.instrAndTestsClassLoader = new MemoryClassLoader(baseClassLoader);
         this.jarFiles = scannedJarFiles;
+        this.classesPackage = args[1];
+        this.testsPackage = args[2];
 
     }
 
@@ -83,13 +89,16 @@ public class CoverageReporter {
                 JarEntry jarEntry = jarEntries.nextElement();
                 String name = jarEntry.getName();
                 if (name.endsWith(".class")) {
-                    String fullyQualifiedName = getFullyQualifiedName(name);
-                    System.out.println(name + " - " + fullyQualifiedName);
-                    original = baseClassLoader.getResourceAsStream(name);
-                    if (name.contains("tests/")) {
+                    if (name.contains(testsPackage)) {
+                        String fullyQualifiedName = getFullyQualifiedName(name);
+                        System.out.println(name + " - " + fullyQualifiedName);
+                        original = baseClassLoader.getResourceAsStream(name);
                         instrAndTestsClassLoader.addDefinition(fullyQualifiedName, original.readAllBytes());
                         tests.add(name);
-                    } else {
+                    } else if (name.contains(classesPackage)){
+                        String fullyQualifiedName = getFullyQualifiedName(name);
+                        System.out.println(name + " - " + fullyQualifiedName);
+                        original = baseClassLoader.getResourceAsStream(name);
                         final Instrumenter instr = new Instrumenter(runtime);
                         final byte[] instrumented = instr.instrument(original, fullyQualifiedName);
                         original.close();
