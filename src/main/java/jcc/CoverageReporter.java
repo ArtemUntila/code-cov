@@ -58,6 +58,7 @@ public class CoverageReporter {
 
         URL[] scannedJarURLs = new URL[length];
         List<JarFile> scannedJarFiles = new ArrayList<>(length);
+        System.out.println("Scanned .jar(s):");
         for (int i = 0; i < scannedJarPaths.length; i++) {
             String absolutePath = projectDirPath + "/" + scannedJarPaths[i];
             System.out.println(absolutePath);
@@ -83,6 +84,7 @@ public class CoverageReporter {
 
         InputStream original;
 
+        System.out.println("\nScanned Classes:");
         for (JarFile jarFile : jarFiles) {
             Enumeration<JarEntry> jarEntries = jarFile.entries();
             while (jarEntries.hasMoreElements()) {
@@ -112,12 +114,14 @@ public class CoverageReporter {
         final RuntimeData data = new RuntimeData();
         runtime.startup(data);
 
-        System.out.println("Running tests...\n");
+        System.out.println("\nRunning tests...");
         for (String testName : tests) {
             final Class<?> testClass = instrAndTestsClassLoader.loadClass(getFullyQualifiedName(testName));
             final Runnable targetInstance = (Runnable) testClass.getDeclaredConstructor().newInstance();
             targetInstance.run();
         }
+
+        System.out.println("\nAnalyzing Coverage...");
 
         final ExecutionDataStore executionData = new ExecutionDataStore();
         final SessionInfoStore sessionInfos = new SessionInfoStore();
